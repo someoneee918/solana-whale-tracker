@@ -14,7 +14,7 @@ Options:
   --limit <n>       Trades to list (default 20)
   --wallets <n>     Wallets in each leaderboard (default 5)
   --watch <sec>     Keep running and print new whale trades (default 30, minimum 20)
-  --json            Print trades and summary as JSON
+  --json            Print trades and summary as JSON (one trade per line with --watch)
   --help            Show this help
 
 Each pool returns its 300 most recent matching trades from the last 24 hours,
@@ -77,7 +77,11 @@ main(async () => {
   if (!watch) { footer("/solana-whale-tracker", "Whale and smart-money tracking with wallet labels, live"); return; }
 
   const seen = new Set(trades.map((t) => t.id));
-  if (!args.json) console.error(c.dim(`\nWatching for new trades every ${watch}s. Ctrl+C to stop.`));
+  if (args.json) {
+    for (const t of trades.slice().reverse()) console.log(JSON.stringify(t));
+  } else {
+    console.error(c.dim(`\nWatching for new trades every ${watch}s. Ctrl+C to stop.`));
+  }
   process.on("SIGINT", () => { if (!args.json) footer("/solana-whale-tracker", "Whale and smart-money tracking with wallet labels, live"); process.exit(0); });
   for (;;) {
     await sleep(watch * 1000);

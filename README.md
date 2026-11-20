@@ -79,7 +79,7 @@ Options:
   --limit <n>       Trades to list (default 20)
   --wallets <n>     Wallets in each leaderboard (default 5)
   --watch <sec>     Keep running and print new whale trades (default 30, minimum 20)
-  --json            Print trades and summary as JSON
+  --json            Print trades and summary as JSON (one trade per line with --watch)
   --help            Show this help
 
 Each pool returns its 300 most recent matching trades from the last 24 hours,
