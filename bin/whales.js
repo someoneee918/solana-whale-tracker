@@ -21,14 +21,39 @@ Each pool returns its 300 most recent matching trades from the last 24 hours,
 so on a busy token raise --min-usd to see further back.
 `;
 
+export function positiveInt(name, value, fallback) {
+  if (value === undefined) return fallback;
+  if (typeof value === "boolean" || typeof value === "object" || value === null) {
+    throw new Error(`--${name} must be a whole number above 0`);
+  }
+  const str = String(value).trim();
+  if (!/^\d+$/.test(str) || Number(str) <= 0) {
+    throw new Error(`--${name} must be a whole number above 0`);
+  }
+  return Number(str);
+}
+
+export function parseMinUsd(value, fallback = 1000) {
+  if (value === undefined) return fallback;
+  if (typeof value === "boolean" || typeof value === "object" || value === null) {
+    throw new Error(`--min-usd must be a number of 0 or more`);
+  }
+  const str = String(value).trim();
+  const n = Number(str);
+  if (str === "" || isNaN(n) || n < 0) {
+    throw new Error(`--min-usd must be a number of 0 or more`);
+  }
+  return n;
+}
+
 main(async () => {
   const args = parseArgs(process.argv.slice(2), { booleans: ["trending", "json", "help"] });
   const mint = args._[0];
   if (args.help || (!mint && !args.trending)) { console.log(HELP); process.exit(args.help ? 0 : 1); }
   if (mint && !isAddress(mint)) throw new Error(`"${mint}" is not a Solana address.`);
-  const minUsd = Math.max(1, Number(args["min-usd"]) || 1000);
-  const limit = Number(args.limit) || 20;
-  const walletCount = Number(args.wallets) || 5;
+  const minUsd = parseMinUsd(args["min-usd"], 1000);
+  const limit = positiveInt("limit", args.limit, 20);
+  const walletCount = positiveInt("wallets", args.wallets, 5);
   const watch = watchSeconds(args.watch);
 
   let pools, title, single = null;
